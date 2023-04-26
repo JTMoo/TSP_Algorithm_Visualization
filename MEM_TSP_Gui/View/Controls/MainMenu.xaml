@@ -1,0 +1,67 @@
+﻿<UserControl x:Class="MEM_TSP.Gui.View.Controls.MainMenu"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:Converter="clr-namespace:MEM_TSP.Gui.View.Converter"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="680" d:DesignWidth="180">
+
+    <UserControl.Resources>
+        <Thickness x:Key="standardMargin">10</Thickness>
+        <GridLength x:Key="standardRowHeight">80</GridLength>
+        <System:Double x:Key="standardButtonHeight">60</System:Double>
+        <System:Double x:Key="standardButtonWidth">160</System:Double>
+        <Converter:IsNullConverter x:Key="isNullConverter"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="{StaticResource standardRowHeight}"/>
+            <RowDefinition Height="{StaticResource standardRowHeight}"/>
+            <RowDefinition Height="{StaticResource standardRowHeight}"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="{StaticResource standardRowHeight}"/>
+        </Grid.RowDefinitions>
+
+        <Button Grid.Row="0"
+				Height="{StaticResource standardButtonHeight}"
+				Width="{StaticResource standardButtonWidth}"
+				Content="Add Algorithm Tab"
+				HorizontalAlignment="Center"
+				Command="{Binding AddAlgorithmTabCommand}" />
+
+        <Button Grid.Row="1"
+				Height="{StaticResource standardButtonHeight}"
+				Width="{StaticResource standardButtonWidth}"
+				Content="Add Menu Tab"
+				HorizontalAlignment="Center"
+				Command="{Binding AddMenuTabCommand}" />
+
+        <Button Grid.Row="2"
+				Height="{StaticResource standardButtonHeight}"
+				Width="{StaticResource standardButtonWidth}"
+				Content="Close Tab"
+				HorizontalAlignment="Center"
+				Command="{Binding RemoveTabCommand}">
+            <Button.Style>
+                <Style>
+                    <Setter Property="Button.IsEnabled" Value="True"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding SelectedTab, Converter= {StaticResource isNullConverter}}" Value="True">
+                            <Setter Property="Button.IsEnabled" Value="False"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+
+        <Button Grid.Row="4"
+				Height="{StaticResource standardButtonHeight}"
+				Width="{StaticResource standardButtonWidth}"
+				Content="Exit"
+				HorizontalAlignment="Center"
+				Command="{Binding ExitCommand}" />
+    </Grid>
+</UserControl>

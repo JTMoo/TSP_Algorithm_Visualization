@@ -1,0 +1,293 @@
+﻿<UserControl x:Class="MEM_TSP.Gui.View.Controls.TspAlgorithmControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:Converter="clr-namespace:MEM_TSP.Gui.View.Converter"
+		     xmlns:controlVM="clr-namespace:MEM_TSP.Gui.ViewModel.Controls"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:util="clr-namespace:MEM_TSP.Gui.Util"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="800">
+
+    <UserControl.DataContext>
+        <controlVM:TspAlgorithmControlViewModel />
+    </UserControl.DataContext>
+    
+    <UserControl.Resources>
+        <Thickness x:Key="standardMargin">10</Thickness>
+        <GridLength x:Key="standardRowHeight">80</GridLength>
+        <System:Double x:Key="standardButtonHeight">60</System:Double>
+        <System:Double x:Key="shortButtonHeight">30</System:Double>
+        <System:Double x:Key="standardButtonWidth">160</System:Double>
+        <Converter:IsNullConverter x:Key="isNullConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="{Binding CanvasX}"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="{Binding CanvasY}"/>
+            <RowDefinition Height="10" />
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Map"
+                   Grid.ColumnSpan="2"
+                   FontSize="35"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Top"/>
+
+        <Canvas Grid.Row="1"
+                Background="Bisque">
+            <Polyline Points="{Binding CurrentRoute}"
+                      Stroke="Black"
+                      StrokeThickness="1.5" />
+        </Canvas>
+
+        <!-- First Column-->
+        <ItemsControl Grid.Row="1"
+                      ItemsSource="{Binding Path=CurrentPoints, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas HorizontalAlignment="Stretch" 
+                            VerticalAlignment="Stretch"
+                            Background="Transparent" >
+                        <i:Interaction.Behaviors>
+                            <util:MouseBehaviour MouseX="{Binding MouseX, Mode=OneWayToSource}"
+                                                 MouseY="{Binding MouseY, Mode=OneWayToSource}" />
+                        </i:Interaction.Behaviors>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseRightButtonUp" >
+                                <i:InvokeCommandAction  Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl},
+                                                                           Path=DataContext.RightMouseButtonUpCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Canvas>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type Point}">
+                    <Ellipse Width="7" 
+                             Height="7" 
+                             Fill="Black">
+                        <Ellipse.ToolTip>
+                            <ToolTip>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat=" X: {0}, Y: {1}">
+                                            <Binding Path="X"/>
+                                            <Binding Path="Y"/>
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </ToolTip>
+                        </Ellipse.ToolTip>
+                        <Ellipse.RenderTransform>
+                            <TranslateTransform X="-3.5" Y="-3.5" />
+                        </Ellipse.RenderTransform>
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="PreviewMouseDown" >
+                                <i:InvokeCommandAction   Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl},
+                                                                           Path=DataContext.LeftMouseButtonDownCommand}"
+                                                         CommandParameter="{Binding}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Ellipse>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
+
+        <!-- Horizontal dotted line -->
+        <Rectangle Grid.Row="2"
+                   Grid.ColumnSpan="1"
+                   Stroke="LightGray"
+                   StrokeThickness="4"
+                   Height="2"
+                   Width="Auto"
+                   StrokeDashArray="2 2"                    
+                   SnapsToDevicePixels="True" />
+        
+        <ListView Grid.Row="3"
+				  ItemsSource="{Binding TspLogger.TspLog, UpdateSourceTrigger=PropertyChanged}" />
+        
+        <!-- Vertical dotted line -->
+        <Rectangle Grid.Column="1"
+                   Grid.RowSpan="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=RowDefinitions.Count, Mode=OneWay}"
+                   Stroke="LightGray"
+                   StrokeThickness="4"
+                   Height="Auto"
+                   Width="2"
+                   StrokeDashArray="2 2"                    
+                   SnapsToDevicePixels="True" />
+        
+        <!-- Second Columns (Settings) -->
+        <TextBlock Grid.Column="3"
+                   Text="Settings"
+                   FontSize="35"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Top" />
+
+        <Grid Grid.Column="2" Grid.Row="1" Grid.RowSpan="3" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition />
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="10"/>
+            </Grid.RowDefinitions>
+
+            <ComboBox Grid.Row="1"
+                      Height="30"
+                      ItemsSource="{Binding Path=SelectedAlgorithm, Converter={Converter:EnumToCollectionConverter}, Mode=OneTime}"
+                      SelectedValuePath="Value"
+                      DisplayMemberPath="Description"
+                      SelectedValue="{Binding Path=SelectedAlgorithm}"/>
+
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="40"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Text="Dots:"
+                           FontSize="13"
+                           FontWeight="DemiBold" />
+                <TextBox Grid.Column="2"
+                         Text="{Binding ElementName=DotSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}"
+                         TextAlignment="Center" />
+                <Slider Grid.Column="1"
+                        Maximum="{Binding MaxAmountOfPoints}"
+                        Minimum="3"
+                        Name="DotSlider"
+                        Value="{Binding Path=AmountOfPoints, UpdateSourceTrigger=PropertyChanged}"
+                        TickPlacement="BottomRight"
+                        IsSnapToTickEnabled="True" />
+            </Grid>
+            
+            <Button Grid.Row="5"
+                    Height="{StaticResource shortButtonHeight}"
+                    Width="{StaticResource standardButtonWidth}"
+                    Content="CommitPoints"
+                    Command="{Binding GenerateRandomPointsCommand}" />
+
+            <Grid Grid.Row="7">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Distance:"
+                           FontSize="13"
+                           FontWeight="DemiBold" />
+                <TextBlock Grid.Column="2"
+                           Text="{Binding Path=Distance}"
+                           FontSize="13"
+                           FontWeight="DemiBold"
+                           HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="4"
+                           Text="[pixel]"
+                           FontSize="13"
+                           FontWeight="DemiBold"
+                           HorizontalAlignment="Left"/>
+            </Grid>
+
+            <Grid Grid.Row="9">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Runtime:"
+                           FontSize="13"
+                           FontWeight="DemiBold" />
+                <TextBlock Grid.Column="2"
+                           Text="{Binding Path=Runtime}"
+                           FontSize="13"
+                           FontWeight="DemiBold"
+                           HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="4"
+                           Text="[ms]"
+                           FontSize="13"
+                           FontWeight="DemiBold"
+                           HorizontalAlignment="Left"/>
+            </Grid>
+
+            <Grid Grid.Row="13"
+                  HorizontalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <CheckBox IsChecked="{Binding AutoRun}"
+                          VerticalAlignment="Center"/>
+
+                <TextBlock Grid.Column="3"
+                           Text="Auto Run"
+                           FontSize="13"
+                           FontWeight="DemiBold" />
+            </Grid>
+
+            <Button Grid.Row="15"
+                    Height="{StaticResource standardButtonHeight}"
+                    Width="{StaticResource standardButtonWidth}"
+                    Content="{Binding ExecutionButtonText}"
+                    Command="{Binding ExecuteAlgorithmCommand}" >
+                <Button.Style>
+                    <Style>
+                        <Setter Property="Button.IsEnabled" Value="True"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=CurrentPoints.Count}" Value="0">
+                                <Setter Property="Button.IsEnabled" Value="False"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="PreviewMouseMove">
+                <i:InvokeCommandAction Command="{Binding Path=PreviewMouseMoveCommand}" />
+            </i:EventTrigger>
+            <i:EventTrigger EventName="PreviewMouseUp" >
+                <i:InvokeCommandAction  Command="{Binding Path=LeftMouseButtonUpCommand}" />
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+    </Grid>
+</UserControl>

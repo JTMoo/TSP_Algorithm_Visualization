@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MEM_TSP.Kernel": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
